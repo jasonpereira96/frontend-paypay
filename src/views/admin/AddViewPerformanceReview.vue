@@ -42,7 +42,8 @@
     </b-container>
 </template>
 <script>
-import { getReview, patchPerformanceReview } from '@/apis'
+import { getReview, patchPerformanceReview, postPerformanceReview, deleteQuestion } from '@/apis'
+import { showToast } from '@/utils';
 
 export default {
     data() {
@@ -51,6 +52,7 @@ export default {
             loading: false,
             title: 'Sample Review Title',
             questions: [],
+            toDelete: []
         }
     },
     computed: {
@@ -71,6 +73,8 @@ export default {
             })
         },
         onRemove(index) {
+            let removedQuestion = this.questions.find((question, qIndex) => index === qIndex)
+            this.toDelete.push(removedQuestion)
             this.questions = this.questions.filter((question, qIndex) => index !== qIndex)
         },
         async loadData() {
@@ -91,13 +95,28 @@ export default {
             }
         },
         async onSave() {
-            if (this.isViewMode) {
-                let payload = {
-                    title: this.title,
-                    questions: this.questions
+            let payload = {
+                title: this.title,
+                questions: this.questions
+            }
+            try {
+                if (this.isViewMode) {
+                    await patchPerformanceReview(this.reviewId, payload)
+                    try {
+                        await Promise.all(this.toDelete.map(question => {
+                            return deleteQuestion(question.id)
+                        }))
+                        this.toDelete = []
+                    } catch(e) {
+                        console.log(e)
+                    }
+                } else {
+                    await postPerformanceReview(payload)
                 }
-                await patchPerformanceReview(this.reviewId, payload)
-            } 
+                showToast('Saved', this)
+            } catch(e) {
+                console.log(e)
+            }
         }
     }
 }

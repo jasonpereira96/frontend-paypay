@@ -44,6 +44,25 @@ const routes = [
     component: () => import(/* webpackChunkName: "AdminHome" */ '../views/admin/AddViewPerformanceReview.vue')
   },
   {
+    path: '/admin/add-performance-review',
+    name: 'AddPerformanceReview',
+    meta: {
+      isViewMode: false
+    },
+    component: () => import(/* webpackChunkName: "AdminHome" */ '../views/admin/AddViewPerformanceReview.vue')
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import(/* webpackChunkName: "AdminHome" */ '../views/Login.vue')
+  },
+  {
+    path: '/submit-review/:reviewId/:revieweeId',
+    name: 'SubmitReview',
+    component: () => import(/* webpackChunkName: "AdminHome" */ '../views/employee/SubmitReview.vue')
+  },
+
+  {
     path: '/about',
     name: 'About',
     // route level code-splitting

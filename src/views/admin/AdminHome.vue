@@ -17,18 +17,25 @@
                         View
                     </b-button>
                 </template>
+                 <template #cell(delete)="row">
+                    <b-button size="sm" @click="deleteEmployee(row)" class="mr-2">
+                        Delete
+                    </b-button>
+                </template>
             </b-table>                
         </b-row>
     </b-container>
 </template>
 <script>
-import { getEmployees } from '@/apis'
+import { getEmployees, deleteEmployee } from '@/apis'
+import { showToast } from '@/utils'
+
 export default {
     data() {
         return {
             employees: [],
             loading: false,
-            fields: ['first_name', 'last_name', 'email', 'view'],
+            fields: ['first_name', 'last_name', 'email', 'view', 'delete'],
         }
     },
     mounted() {
@@ -39,7 +46,7 @@ export default {
             this.loading = true
             try {
                 let apiResponse = await getEmployees()
-                this.employees = apiResponse.data
+                this.employees = apiResponse.data.filter(employee => !employee.deleted)
                 this.loading = false
             } catch(e) {
                 console.log(e)
@@ -54,6 +61,16 @@ export default {
             this.$router.push({
                 name: 'PerformanceReviews'
             })
+        },
+        async deleteEmployee(row) {
+            let id = row.item.id
+            try {
+                await deleteEmployee(id)
+                showToast('Employee Deleted', this)
+                this.loadData()
+            } catch(e) {
+                console.log(e)
+            }
         },
         viewEmployee(row) {
             this.$router.push({

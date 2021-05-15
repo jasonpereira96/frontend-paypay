@@ -7,7 +7,7 @@
         </b-row>
         <b-row>
             <b-col cols="12">
-                <b-button>Create New Performance Review</b-button>
+                <b-button @click="createReview">Create New Performance Review</b-button>
             </b-col>
         </b-row>
         <b-row>
@@ -25,7 +25,7 @@
                     </b-tab>
                     <b-tab title="Submissions">
                         <b-table responsive striped hover
-                        :items="submissions" :fields="submissionFields">
+                        :items="submissionRows" :fields="submissionFields">
                             <template #cell(view)="row">
                                 <b-button size="sm" @click="viewSubmission(row)" class="">
                                     View
@@ -36,10 +36,17 @@
                 </b-tabs>
             </b-col>
         </b-row>
+        <b-modal size="lg" v-model="submissionModal.visible" :title="submissionModal.title"
+        >
+            <b-table responsive striped hover 
+                :items="submissionModal.reviewData" :fields="['question_text', 'answer']">
+            </b-table>
+        </b-modal>
     </b-container>
 </template>
 <script>
-import {  getReviews, getReviewSubmissions } from '@/apis'
+import {  getReviews, getEmployees, getReviewSubmissions } from '@/apis'
+import {  getName } from '@/utils'
 
 export default {
     data() {
@@ -51,6 +58,14 @@ export default {
                 title: 'Sample 1',
                 id: 1
             }],
+            submissionModal: {
+                reviewData: [],
+                title: '',
+                reviewer: '',
+                reviewee: '',
+                visible: false
+            },
+            employees: [],
             submissions: [],
 
         }
@@ -58,6 +73,21 @@ export default {
     computed: {
         title() {
             return 'Performance Reviews'
+        },
+        submissionRows() {
+            return this.submissions.map(submission => {
+                let reviewer = this.employees.find(employee => employee.id === submission.reviewer)
+                let reviewee = this.employees.find(employee => employee.id === submission.employee)
+                let review = this.reviews.find(review => review.id === submission.performance_review)
+                
+                return {
+                    id: submission.id,
+                    reviewer: getName(reviewer),
+                    reviewee: getName(reviewee),
+                    title: review.title, 
+                    reviewData: JSON.parse(submission.review_data)
+                }
+            })
         }
     },
     mounted() {
@@ -67,18 +97,13 @@ export default {
         async loadData() {
             this.loading = true
             try {
-                let apiResponses = await Promise.all([getReviews(), getReviewSubmissions()])
+                let apiResponses = await Promise.all([getReviews(), getReviewSubmissions(), getEmployees()])
                 let reviews = apiResponses[0].data
                 let submissions = apiResponses[1].data
+                let employees = apiResponses[2].data
+                this.employees = employees
                 this.reviews = reviews
-                this.submissions = submissions.map(submission => {
-                    let { employee, reviewer } = submission
-                    return {
-                        title: submission.performance_review.title,
-                        reviewer: `${reviewer.first_name} ${reviewer.last_name}`,
-                        reviewee: `${employee.first_name} ${employee.last_name}`
-                    }
-                })
+                this.submissions = submissions
                 this.loading = false
             } catch(e) {
                 console.log(e)
@@ -90,6 +115,17 @@ export default {
                 params: {
                     id: row.item.id
                 }
+            })
+        },
+        viewSubmission(row) {
+            let record = row.item
+            this.submissionModal.title = record.title
+            this.submissionModal.reviewData = record.reviewData
+            this.submissionModal.visible = true
+        },
+        createReview() {
+            this.$router.push({
+                name: 'AddPerformanceReview',
             })
         }
     }
