@@ -1,15 +1,22 @@
 <template>
-  <EmployeeHome/>
+  <div></div>
 </template>
 
 <script>
-// @ is an alias to /src
-import EmployeeHome from '@/views/employee/EmployeeHome'
+import store from '@/store'
 
 export default {
   name: 'Home',
-  components: {
-    EmployeeHome
+  mounted() {
+    if (store.state.auth.isAdmin) {
+      this.$router.push({
+        name: 'AdminHome'
+      })
+    } else {
+      this.$router.push({
+        name: 'EmployeeHome'
+      })
+    }
   }
 }
 </script>

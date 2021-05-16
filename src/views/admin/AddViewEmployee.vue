@@ -63,13 +63,18 @@
         </b-row>
          <b-row>
             <b-col cols="12">
-                <b-button @click="onSave">Save</b-button>
+                <b-button @click="onSave" :disabled="submitting">
+                    <b-spinner v-if="submitting"/>
+                    <template v-else>Save</template>
+                </b-button>
             </b-col>
         </b-row>
     </b-container>
 </template>
 <script>
 import {  getEmployees, patchEmployee, postEmployee } from '@/apis'
+import { createLoader, showToast } from '@/utils'
+
 
 function generatePreselectedOptions(ids, employees) {
     let employeesMap = employees.reduce((acc, employee) => {
@@ -83,6 +88,7 @@ export default {
     data() {
         return {
             employees: [],
+            submitting: false,
             loading: false,
             employee: {
                 first_name: '',
@@ -108,31 +114,37 @@ export default {
             return `${first_name} ${last_name}`
         },
         async loadData() {
-            this.loading = true
+            let loader = createLoader(this)
             const employeeId = parseInt(this.$route.params.id)
             try {
                 let apiResponse = await getEmployees()
-                this.employees = apiResponse.data
+                this.employees = apiResponse.data.filter(employee => !employee.deleted)
                 console.log(this.employees)
                 if (this.isViewMode) {
                     this.employee = this.employees.find(employee => employee.id === employeeId)
                     this.employee.reviewers = generatePreselectedOptions(this.employee.reviewers, this.employees)
                 }
-                this.loading = false
+                loader.hide()
             } catch(e) {
                 console.log(e)
-            }
+            } 
         },
-        onSave() {
+        async onSave() {
             let payload = {
                 ...this.employee
             }
+            this.submitting = true
             payload.reviewers = payload.reviewers.map(employee => employee.id)
             if (this.$route.meta.isViewMode) {
-                patchEmployee(this.employee.id, payload)
+                await patchEmployee(this.employee.id, payload)
+                showToast('Saved', this)
             } else {
-                postEmployee(payload)
+                await postEmployee(payload)
+                this.$router.push({
+                    name: 'AdminHome'
+                })
             }
+            this.submitting = false
         }
     }
 }

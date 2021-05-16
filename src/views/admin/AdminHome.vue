@@ -3,10 +3,7 @@
         <b-row>
             <b-col cols="12">
                 <b-button @click="createEmployee">
-                    Create Employee
-                </b-button>
-                <b-button @click="viewPerformanceReviews">
-                    Performance Reviews
+                    + Create Employee
                 </b-button>
             </b-col>
         </b-row>
@@ -18,9 +15,15 @@
                     </b-button>
                 </template>
                  <template #cell(delete)="row">
-                    <b-button size="sm" @click="deleteEmployee(row)" class="mr-2">
+                    <b-button size="sm" @click="deleteEmployee(row)" class="mr-2" :disabled="deleting">
                         Delete
                     </b-button>
+                </template>
+                <template #table-busy>
+                    <div class="text-center text-danger my-2">
+                    <b-spinner class="align-middle"></b-spinner>
+                    <strong>Loading...</strong>
+                    </div>
                 </template>
             </b-table>                
         </b-row>
@@ -35,6 +38,7 @@ export default {
         return {
             employees: [],
             loading: false,
+            deleting: false,
             fields: ['first_name', 'last_name', 'email', 'view', 'delete'],
         }
     },
@@ -64,9 +68,11 @@ export default {
         },
         async deleteEmployee(row) {
             let id = row.item.id
+            this.deleting = true
             try {
                 await deleteEmployee(id)
                 showToast('Employee Deleted', this)
+                this.deleting = false
                 this.loadData()
             } catch(e) {
                 console.log(e)

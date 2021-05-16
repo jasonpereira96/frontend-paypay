@@ -21,15 +21,27 @@
                                     View
                                 </b-button>
                             </template>
+                            <template #table-busy>
+                                <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                                </div>
+                            </template>                            
                         </b-table>
                     </b-tab>
                     <b-tab title="Submissions">
                         <b-table responsive striped hover
-                        :items="submissionRows" :fields="submissionFields">
+                        :items="submissionRows" :fields="submissionFields" :busy="loading">
                             <template #cell(view)="row">
                                 <b-button size="sm" @click="viewSubmission(row)" class="">
                                     View
                                 </b-button>
+                            </template>
+                            <template #table-busy>
+                                <div class="text-center text-danger my-2">
+                                <b-spinner class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                                </div>
                             </template>
                         </b-table>
                     </b-tab>

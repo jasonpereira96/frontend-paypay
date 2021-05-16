@@ -7,7 +7,7 @@
         </b-row>
         <b-row>
             <b-col cols="12">
-                <h2>{{ `Employee to review: ${getName(employee)}` }}</h2>
+                <h2>{{ employee ? `Employee to review: ${getName(employee)}` : '' }}</h2>
             </b-col>
         </b-row>
         <b-row>
@@ -24,23 +24,25 @@
         </b-row>
         <b-row>
             <b-col cols="12">
-                <b-button @click="onSubmit">Submit</b-button>
+                <b-button @click="onSubmit" :disabled="submitting">
+                    <b-spinner v-if="submitting"/>
+                    <span v-else>Submit</span>
+                </b-button>
             </b-col>
         </b-row>
     </b-container>
 </template>
 <script>
 import { getReview, getRatings, getEmployee, postSubmission } from '@/apis'
-import { getName } from '@/utils'
+import { getName, createLoader, showToast } from '@/utils'
 export default {
     data() {
         return {
+            submitting: false,
             title: '',
             selected: [0, 0, 0, 0],
             questions: [],
-            employee: {
-                first_name: ''
-            },
+            employee: null,
             options: []
         }
     },
@@ -57,7 +59,7 @@ export default {
     },
     methods: {
         async loadData() {
-            this.loading = true
+            let loader = createLoader(this)
             try {
                 let apiResponses = await Promise.all([
                     getReview(this.reviewId),
@@ -76,6 +78,7 @@ export default {
                 })
                 this.employee = apiResponses[2].data
                 this.selected = new Array(review.questions.length).fill(0)
+                loader.hide()
             } catch(e) {
                 console.log(e)
             }
@@ -104,11 +107,18 @@ export default {
                 performance_review: this.reviewId,
                 review_data: JSON.stringify(records),
             }
+            this.submitting = true
             try {
                 let apiResponse = await postSubmission(payload)
                 console.log(apiResponse)
+                showToast('Review submitted!', this)
             } catch(e) {
                 console.log(e)
+            } finally {
+                this.submitting = false
+                this.$router.push({
+                    name: 'EmployeeHome'
+                })
             }
         }
     }

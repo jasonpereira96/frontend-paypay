@@ -35,7 +35,10 @@
         
          <b-row>
             <b-col cols="12">
-                <b-button @click="onSave">Save</b-button>
+                <b-button @click="onSave" :disabled="submitting">
+                    <b-spinner v-if="submitting"/>
+                    <span v-else>Save</span>
+                </b-button>
                 <b-button @click="onAdd">Add</b-button>
             </b-col>
         </b-row>
@@ -43,7 +46,7 @@
 </template>
 <script>
 import { getReview, patchPerformanceReview, postPerformanceReview, deleteQuestion } from '@/apis'
-import { showToast } from '@/utils';
+import { createLoader, showToast } from '@/utils'
 
 export default {
     data() {
@@ -52,7 +55,8 @@ export default {
             loading: false,
             title: 'Sample Review Title',
             questions: [],
-            toDelete: []
+            toDelete: [],
+            submitting: false
         }
     },
     computed: {
@@ -78,7 +82,7 @@ export default {
             this.questions = this.questions.filter((question, qIndex) => index !== qIndex)
         },
         async loadData() {
-            this.loading = true
+            let loader = createLoader(this)
             try {
                 if (this.isViewMode) {
                     const reviewId = parseInt(this.$route.params.id)
@@ -92,6 +96,7 @@ export default {
                 console.log(e)
             } finally {
                 this.loading = false
+                loader.hide()
             }
         },
         async onSave() {
@@ -100,6 +105,7 @@ export default {
                 questions: this.questions
             }
             try {
+                this.submitting = true
                 if (this.isViewMode) {
                     await patchPerformanceReview(this.reviewId, payload)
                     try {
@@ -113,7 +119,14 @@ export default {
                 } else {
                     await postPerformanceReview(payload)
                 }
-                showToast('Saved', this)
+                this.submitting = false
+                if (this.isViewMode) {
+                    showToast('Saved!', this)
+                } else {
+                    this.$router.push({
+                        name: 'PerformanceReviews'
+                    })
+                }
             } catch(e) {
                 console.log(e)
             }
