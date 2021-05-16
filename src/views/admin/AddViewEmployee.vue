@@ -117,12 +117,15 @@ export default {
             let { email, first_name, last_name, reviewers } = this.employee
             const isEmailValid = EmailValidator.validate(email)
             if (!isEmailValid) {
-                return alert('Email invalid')
+                alert('Email invalid')
+                return false
             }
             const isValid = first_name.length > 0 && last_name.length > 0 && reviewers.length > 0
             if (!isValid) {
-                return alert('Fill in all fields')
+                alert('Fill in all fields')
+                return false
             }
+            return true
         },
         async loadData() {
             let loader = createLoader(this)
