@@ -7,16 +7,20 @@
         </b-row>
         <b-row>
             <b-col cols="9">
-                <b-form-input
-                    v-model="title"
-                    placeholder="Enter Title"
-                    required
-                ></b-form-input>
+                 <b-form-group
+                    label="Title:"
+                >
+                    <b-form-input
+                        v-model="title"
+                        placeholder="Enter Title"
+                        required
+                    ></b-form-input>
+                 </b-form-group>
             </b-col>
         </b-row>
         <b-row>
             <b-col cols="12">
-                <b-form-group id="input-group-1">
+                <b-form-group id="input-group-1" label="Questions:">
                     <b-row v-for="(question, index) in questions" :key="index">
                         <b-col cols="9">
                             <b-form-input
@@ -32,14 +36,19 @@
                 </b-form-group>    
             </b-col>
         </b-row>
-        
+        <b-row>
+            <b-col cols="12">
+                <b-button @click="onAdd"> + Add Question
+                </b-button>
+            </b-col>
+        </b-row>
+
          <b-row>
             <b-col cols="12">
                 <b-button @click="onSave" :disabled="submitting">
                     <b-spinner v-if="submitting"/>
                     <span v-else>Save</span>
                 </b-button>
-                <b-button @click="onAdd">Add</b-button>
             </b-col>
         </b-row>
     </b-container>

@@ -1,0 +1,13 @@
+$dark-blue: #074f89;
+$pale-blue: #f6f9fc;
+
+body {
+    background: $pale-blue;
+}
+.row {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.btn, .btn:hover {
+    background-color: $dark-blue;
+}

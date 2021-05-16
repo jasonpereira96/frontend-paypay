@@ -10,7 +10,8 @@ import 'vue-loading-overlay/dist/vue-loading.css';
 import 'vue-multiselect/dist/vue-multiselect.min.css';
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-  
+import '@/scss/common.scss';
+
 Vue.component('multiselect', Multiselect)
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)

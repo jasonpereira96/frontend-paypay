@@ -64,4 +64,9 @@ export default {
   a {
     color: white;
   }
+  h5 {
+    margin: 0;
+    line-height: 1.5;
+    margin-right: 10px;
+  }
 </style>
