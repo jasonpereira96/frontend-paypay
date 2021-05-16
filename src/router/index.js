@@ -69,6 +69,9 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
+    meta: {
+      public: true
+    },
     component: () => import(/* webpackChunkName: "AdminHome" */ '../views/Login.vue')
   },
   {
@@ -85,22 +88,22 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   const loggedIn = !!store.state.auth.loginSuccessful
   const isAdmin = !!store.state.auth.isAdmin
-  if (!loggedIn) {
+  
+  if (!loggedIn && !to.meta.public) {
     next({
       name: 'Login'
     })
-  }
-  if (isAdmin && !to.meta.admin) {
+  } else if (isAdmin && !to.meta.admin) {
     next({
       name: 'AdminHome'
     })
-  }
-  if (!isAdmin && to.meta.admin) {
+  } else if (!isAdmin && to.meta.admin) {
     next({
       name: 'EmployeeHome'
     })
+  } else {
+    next()
   }
-  next()
 })
 
 export default router

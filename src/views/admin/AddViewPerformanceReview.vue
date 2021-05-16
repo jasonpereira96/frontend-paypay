@@ -81,6 +81,9 @@ export default {
             this.toDelete.push(removedQuestion)
             this.questions = this.questions.filter((question, qIndex) => index !== qIndex)
         },
+        isValid() {
+            return this.title.length > 0 && this.questions.every(question => question.question_text.length > 0)
+        },
         async loadData() {
             let loader = createLoader(this)
             try {
@@ -100,6 +103,9 @@ export default {
             }
         },
         async onSave() {
+            if (!this.isValid()) {
+                return alert('Fill in all fields')
+            }
             let payload = {
                 title: this.title,
                 questions: this.questions

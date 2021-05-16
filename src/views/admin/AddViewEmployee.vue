@@ -74,7 +74,7 @@
 <script>
 import {  getEmployees, patchEmployee, postEmployee } from '@/apis'
 import { createLoader, showToast } from '@/utils'
-
+import EmailValidator from 'email-validator';
 
 function generatePreselectedOptions(ids, employees) {
     let employeesMap = employees.reduce((acc, employee) => {
@@ -113,6 +113,17 @@ export default {
         customLabel ({ first_name, last_name }) {
             return `${first_name} ${last_name}`
         },
+        isValid() {
+            let { email, first_name, last_name, reviewers } = this.employee
+            const isEmailValid = EmailValidator.validate(email)
+            if (!isEmailValid) {
+                return alert('Email invalid')
+            }
+            const isValid = first_name.length > 0 && last_name.length > 0 && reviewers.length > 0
+            if (!isValid) {
+                return alert('Fill in all fields')
+            }
+        },
         async loadData() {
             let loader = createLoader(this)
             const employeeId = parseInt(this.$route.params.id)
@@ -132,6 +143,9 @@ export default {
         async onSave() {
             let payload = {
                 ...this.employee
+            }
+            if (!this.isValid()) {
+                return
             }
             this.submitting = true
             payload.reviewers = payload.reviewers.map(employee => employee.id)

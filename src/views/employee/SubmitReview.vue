@@ -84,7 +84,14 @@ export default {
             }
         },
         getName,
+        isValid() {
+            return this.selected.every(value => value && value > 0)
+        },
         async onSubmit() {
+            if (!this.isValid()) {
+                alert('Fill all fields')
+                return
+            }
             let employee_id = this.employee.id
             let reviewer_id = this.$store.state.auth.employee.id
 
