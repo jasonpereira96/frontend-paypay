@@ -68,5 +68,6 @@ export default {
     margin: 0;
     line-height: 1.5;
     margin-right: 10px;
+    color: white;
   }
 </style>
