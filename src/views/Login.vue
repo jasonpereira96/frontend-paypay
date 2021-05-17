@@ -23,7 +23,12 @@
                     </b-form-group>
                 </div>
                 <div>
-                    <b-button @click="login">Login</b-button>
+                    <b-button @click="login" :disabled="loading">
+                        <b-spinner v-if="loading"/>
+                        <template v-else>
+                            Login
+                        </template>
+                    </b-button>
                 </div>
             </b-col>
         </b-row>
@@ -37,12 +42,14 @@ export default {
     data() {
         return {
             email: '',
+            loading: false,
             password: ''
         }
     },
     methods: {
         async login() {
             try {
+                this.loading = true
                 let apiResponse = await login({
                     email: this.email,
                     password: this.password
@@ -59,6 +66,9 @@ export default {
                 }
             } catch(e) {
                 console.log(e)
+            }
+            finally {
+                this.loading = false
             }
         }
     }
